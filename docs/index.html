@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zbiory cyfrowe – Instytut Biblioteka Polska w Paryżu</title>
 <meta name="description" content="Zbiory cyfrowe Instytutu Biblioteka Polska w Paryżu: katalog obiektów ze skanami IIIF i otwartymi danymi.">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <header class="site-header"><div class="wrap">
@@ -56,8 +56,8 @@
   </div>
 </footer>
 
-<script src="sparql-local.js"></script>
-<script src="app.js"></script>
+<script src="sparql-local.js?v=2"></script>
+<script src="app.js?v=2"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const q = (P.get("q") || "").trim();

@@ -4,14 +4,13 @@
 /* Jasny motyw zgodny z identyfikacją ibpp.eu: Noto Serif (jak logo i strona instytutu),
    Montserrat w elementach interfejsu, czerwień z logo jako jedyny akcent. */
 :root {
-  --paper: #ffffff; --ink: #1d1d1b; --muted: #5b5b58; --line: #1d1d1b; --hair: #deddd8; --plate: #f4f3ef;
+  --paper: #ffffff; --ink: #1d1d1b; --muted: #5b5b58; --line: #1d1d1b; --hair: #e2e8f0; --plate: #f7fafc; /* jasne, chłodne szarości jak na ibpp.eu (#F7FAFC, #EDF2F7) */
   --accent: #e00010; --on-accent: #ffffff;
   --display: "Noto Serif", Georgia, serif; --display-weight: 400; --display-case: none; --display-track: -.01em;
   --sans: "Noto Serif", Georgia, serif;
   --ui: "Montserrat", "Helvetica Neue", Arial, sans-serif;
   --label: "Montserrat", sans-serif; --label-weight: 600; --label-track: .08em;
   --mono: "Courier Prime", "Courier New", monospace;
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: light;
 }
 @view-transition { navigation: auto; }
@@ -51,7 +50,7 @@ h1, h2, h3 { margin: 0; line-height: 1.05; }
 .site-nav a:hover:not([aria-current]) { background: var(--plate); color: inherit; }
 
 /* hero: typografia jako główny element */
-.hero { border-bottom: 1px solid var(--line); background: var(--paper) var(--grain); }
+.hero { border-bottom: 1px solid var(--line); background: var(--plate); }
 .hero .wrap { padding-top: clamp(20px, 3vw, 40px); padding-bottom: clamp(20px, 2.5vw, 32px); }
 .hero h1 { margin-top: 10px; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 1; }
 .hero h1 span { color: var(--accent); }
@@ -123,7 +122,7 @@ h1, h2, h3 { margin: 0; line-height: 1.05; }
 .meta-row span:last-child { border-right: 0; }
 .meta-row .hot { background: var(--accent); color: var(--on-accent); }
 
-.viewer-band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--plate) var(--grain); }
+.viewer-band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--plate); }
 .viewer-band .wrap { padding-top: 20px; padding-bottom: 12px; }
 #viewer { position: relative; height: min(76vh, 900px); background: var(--paper); border: 1px solid var(--line); }
 #viewer > clover-viewer { display: block; height: 100%; }
@@ -159,7 +158,7 @@ a.pill:hover { background: var(--ink); color: var(--paper); }
 /* poziomy pasek z przyciąganiem */
 .strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 22%); grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
 .strip .card { scroll-snap-align: start; }
-#graph { height: 440px; border: 1px solid var(--line); margin: 24px 0 0; background: var(--paper) var(--grain); }
+#graph { height: 440px; border: 1px solid var(--line); margin: 24px 0 0; background: var(--paper); }
 details.triples { margin: 48px 0 64px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 details.triples summary { cursor: pointer; padding: 16px 0; font-weight: 700; }
 table { border-collapse: collapse; width: 100%; font-size: .85rem; margin-bottom: 16px; }

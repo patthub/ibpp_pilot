@@ -20,3 +20,5 @@ git add docs && git commit -m "dane" && git push   # Pages publikuje docs/ po pu
 ```
 
 Podgląd lokalny: `python3 -m http.server -d docs` albo `.venv/bin/python server.py`.
+
+Po zmianie `style.css`, `app.js` lub `sparql-local.js` podbij `?v=` w odnośnikach w `docs/*.html` (GitHub Pages trzyma pliki w cache 10 min).
