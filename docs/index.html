@@ -120,7 +120,7 @@ document.getElementById("sort").onchange = e => {
 (async () => {
   const ORDER = {
     title: "(?label = ?id) LCASE(STR(?label))", // najpierw rekordy z tytułem
-    date: "!BOUND(?date) ?date ?id",
+    date: "(!BOUND(?date)) ?date ?id",
     id: "?id",
   };
   const [rows, ...facetRows] = await Promise.all([
