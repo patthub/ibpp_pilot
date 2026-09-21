@@ -97,17 +97,18 @@ const plural = (n, one, few, many) =>
 const SOURCES = { "wikidata.org": "Wikidata", "viaf.org": "VIAF", "id.loc.gov": "Library of Congress", "data.bnf.fr": "BnF" };
 const sourceName = u => Object.entries(SOURCES).find(([host]) => u.includes(host))?.[1] || new URL(u).host;
 
-const NO_SCAN = `<span class="no-scan"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Skan w przygotowaniu</span>`;
-// karta obiektu w siatce (wyniki, dzieła autora…)
+// rekord bez tytułu dostaje etykietę katalogową zamiast powtarzania sygnatury
+const UNTITLED = "[bez tytułu]";
+const titleOf = r => (r.label && r.label !== r.id ? r.label : UNTITLED);
+
+// karta obiektu w siatce (wyniki, inne prace twórcy…)
 const card = r => `
   <li class="card">
     <a href="${esc(href(r.s))}">
-      <div class="card-img">${r.thumb ? `<img src="${esc(r.thumb)}" alt="" loading="lazy">` : NO_SCAN}</div>
-      <div class="card-body">
-        ${r.type ? `<p class="kicker">${esc(typeLabel(r.type))}</p>` : ""}
-        <h3>${esc(r.label)}</h3>
-        <p class="muted">${esc([r.creator, r.date].filter(Boolean).join(" · "))}</p>
-      </div>
+      <div class="card-img">${r.thumb ? `<img src="${esc(r.thumb)}" alt="" loading="lazy"><span class="badge">Skan IIIF</span>` : `<span>Brak skanu</span>`}</div>
+      <h3>${esc(titleOf(r))}</h3>
+      <p class="meta">${esc([r.creator, r.date].filter(Boolean).join(", "))}</p>
+      ${r.id ? `<p class="sig">${esc(r.id)}</p>` : ""}
     </a>
   </li>`;
 // kolumny SPARQL potrzebne karcie: ?s ?label ?type ?thumb ?creator ?date ?id (z GROUP BY ?s)

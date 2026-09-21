@@ -9,52 +9,75 @@
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-  <a href="./" class="brand"><span class="brand-mark" aria-hidden="true">BP</span><span class="brand-name">Instytut Biblioteka Polska w Paryżu<small>Zbiory cyfrowe</small></span></a>
-  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html">SPARQL</a></nav>
+  <a href="./" class="wordmark">Instytut Biblioteka Polska w Paryżu</a>
+  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html">Dane otwarte</a></nav>
 </div></header>
-
-<main class="wrap">
+<div class="record-top"><div class="wrap">
   <nav class="crumbs" aria-label="Ścieżka"><a href="./">Zbiory</a> / <span id="crumb"></span></nav>
-  <article id="record" class="record no-media">
-    <div id="stage" class="stage" hidden>
-      <div id="viewer"></div>
-      <nav id="viewer-tabs" class="chips viewer-tabs" aria-label="Wybór viewera"></nav>
+  <form role="search" class="search small" action="./">
+    <input type="search" name="q" placeholder="Szukaj w zbiorach" aria-label="Szukaj w zbiorach">
+    <button class="btn">Szukaj</button>
+  </form>
+</div></div>
+
+<main>
+  <div class="wrap record-head">
+    <p class="label" id="kind"></p>
+    <h1 id="title">…</h1>
+    <p class="byline" id="byline"></p>
+    <div class="meta-row label" id="metarow"></div>
+  </div>
+
+  <section class="viewer-band" id="stage" hidden aria-label="Skan"><div class="wrap">
+    <div id="viewer"></div>
+    <div class="viewer-bar">
+      <nav id="viewer-tabs" aria-label="Wybór viewera"></nav>
+      <a class="label" id="manifest-link" target="_blank" rel="noopener">Manifest IIIF ↗</a>
     </div>
-    <div class="info">
-      <p class="kicker" id="kind"></p>
-      <h1 id="title">…</h1>
-      <p class="byline" id="byline"></p>
-      <p class="lead" id="lead"></p>
-      <dl class="facts" id="facts"></dl>
+  </div></section>
+
+  <div class="wrap">
+    <div class="record-body" id="record-body">
+      <div class="record-main">
+        <section class="block" id="desc-block"><h2 class="label">Opis</h2><p class="lead" id="lead"></p></section>
+        <section class="block" id="facts-block"><h2 class="label">Szczegóły</h2><dl class="details" id="facts"></dl></section>
+      </div>
+      <aside class="record-side">
+        <section class="block" id="cite-block" hidden><h2 class="label">Jak cytować</h2><p class="cite" id="cite"></p><button class="btn-line" id="copy-cite" type="button">Kopiuj cytowanie</button></section>
+        <section class="block"><h2 class="label">Identyfikatory i dane</h2><ul class="links" id="ids"></ul></section>
+        <section class="block" id="ext-block" hidden><h2 class="label">Zobacz też</h2><ul class="links" id="ext"></ul></section>
+      </aside>
     </div>
-  </article>
 
-  <div id="inverse"></div>
+    <div id="more"></div>
+    <div id="inverse"></div>
 
-  <section class="section" id="graph-section">
-    <h2>Powiązania</h2>
-    <div id="graph" aria-label="Graf powiązań"></div>
-  </section>
+    <section class="section" id="graph-section">
+      <div class="section-head"><h2 class="display">Powiązania</h2><span class="label">Graf wiedzy</span></div>
+      <div id="graph" aria-label="Graf powiązań"></div>
+    </section>
 
-  <details class="data">
-    <summary>Dane otwarte (Linked Open Data)</summary>
-    <div>
-      <p>URI: <code id="uri"></code></p>
-      <p>Pobierz rekord: <span id="formats"></span> · <a href="sparql.html">zapytaj przez SPARQL</a></p>
+    <details class="triples">
+      <summary>Wszystkie dane rekordu (RDF)</summary>
       <table id="triples"></table>
-    </div>
-  </details>
+    </details>
+  </div>
 </main>
 
-<footer class="site-footer"><div class="wrap">
-  <span>Instytut Biblioteka Polska w Paryżu · wersja pilotażowa</span>
-  <nav><a href="data/objects.ttl">Dane (Turtle)</a><a href="sparql.html">SPARQL</a><a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a></nav>
-</div></footer>
+<footer class="site-footer">
+  <div class="wrap footer-top">
+    <div><strong>Instytut Biblioteka Polska w Paryżu</strong>Bibliothèque Polonaise de Paris</div>
+    <ul><li><a href="./">Zbiory</a></li><li><a href="sparql.html">Dane otwarte i SPARQL</a></li><li><a href="data/objects.ttl">Pobierz dane (Turtle)</a></li></ul>
+    <p>Wersja pilotażowa. Obrazy udostępniane w standardzie <a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a>, metadane jako Linked Open Data.</p>
+  </div>
+  <div class="footer-giant" aria-hidden="true">Biblioteka Polska<span>.</span></div>
+</footer>
 
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
 <script>
-const HIDDEN = new Set(["rdf:type", "schema:name", "schema:description", "schema:associatedMedia", "schema:thumbnailUrl"]); // pokazane gdzie indziej
+// pokazane gdzie indziej niż w „Szczegółach”
+const HIDDEN = new Set(["rdf:type", "schema:name", "schema:description", "schema:associatedMedia", "schema:thumbnailUrl", "schema:identifier", "owl:sameAs"]);
 // ponytail: przełącznik tylko do porównania viewerów; po decyzji zostaje jeden, reszta do usunięcia
 const VIEWERS = {
   mirador: {
@@ -88,13 +111,16 @@ const params = new URLSearchParams(location.search);
 const local = params.get("id") || "";
 const uri = BASE + local;
 const $ = id => document.getElementById(id);
+const permalink = location.origin + location.pathname + "?id=" + encodeURIComponent(local);
 
 (async () => {
   if (/[<>"{}|\\^`\s]/.test(uri)) throw new Error("niepoprawny identyfikator"); // uri trafia do zapytania
 
-  const [out, inc] = await Promise.all([
+  const [out, inc, more] = await Promise.all([
     sparql(`SELECT ?p ?o (SAMPLE(?l) AS ?ol) WHERE { <${uri}> ?p ?o ${labelOf("?o", "l")} } GROUP BY ?p ?o ORDER BY ?p`),
-    sparql(`SELECT ?s ?p ${CARD_VARS} WHERE { ?s ?p <${uri}> ${CARD_WHERE} } GROUP BY ?s ?p ORDER BY DESC(BOUND(?thumb)) LCASE(STR(?label)) LIMIT 500`),
+    sparql(`SELECT ?s ?p ${CARD_VARS} WHERE { ?s ?p <${uri}> ${CARD_WHERE} } GROUP BY ?s ?p ORDER BY DESC(BOUND(?thumb)) ?id LIMIT 500`),
+    // inne obiekty tego samego twórcy
+    sparql(`SELECT ?s ?by ${CARD_VARS} WHERE { <${uri}> schema:creator ?by . ?s schema:creator ?by ; schema:identifier [] . FILTER(?s != <${uri}>) ${CARD_WHERE} } GROUP BY ?s ?by ORDER BY DESC(BOUND(?thumb)) ?id LIMIT 12`),
   ]);
   if (!out.length && !inc.length) throw new Error("nie ma takiego zasobu");
   const by = Object.groupBy(out, r => curie(r.p));
@@ -102,40 +128,51 @@ const $ = id => document.getElementById(id);
 
   // nagłówek rekordu
   const kind = (by["rdf:type"] || []).map(r => typeLabel(r.o)).join(", ");
-  const title = text("schema:name")[0] || text("schema:identifier")[0] || curie(uri);
-  $("kind").textContent = kind;
+  const sig = text("schema:identifier")[0];
+  const title = text("schema:name")[0] || (sig ? UNTITLED : curie(uri));
+  const creators = by["schema:creator"] || [];
+  const date = text("schema:dateCreated")[0];
+  const manifest = by["schema:associatedMedia"]?.[0]?.o;
+  $("kind").textContent = sig ? "Obiekt" : kind;
   $("crumb").textContent = kind || "Rekord";
   $("title").textContent = title;
   document.title = `${title} – Instytut Biblioteka Polska w Paryżu`;
-  $("byline").innerHTML = [
-    (by["schema:creator"] || []).map(r => link(r.o, r.ol)).join(", "),
-    esc(text("schema:dateCreated")[0] || ""),
-  ].filter(Boolean).join(" · ");
-  $("lead").textContent = text("schema:description")[0] || "";
+  $("byline").innerHTML = creators.map(r => link(r.o, r.ol)).join(", ");
+  $("metarow").innerHTML = [kind, sig && `sygn. ${sig}`, date, manifest && "Skan IIIF"].filter(Boolean)
+    .map(t => `<span${t === "Skan IIIF" ? ' class="hot"' : ""}>${esc(t)}</span>`).join("");
 
-  // opis: pola w ustalonej kolejności, potem wszystko, czego nie przewidziano
+  // opis i szczegóły: pola w ustalonej kolejności, potem wszystko, czego nie przewidziano
+  const lead = text("schema:description")[0];
+  $("lead").textContent = lead || "";
+  $("desc-block").hidden = !lead;
   const value = (p, r) =>
-    p === "owl:sameAs" ? `<a class="pill" href="${esc(r.o)}" target="_blank" rel="noopener">${esc(sourceName(r.o))} ↗</a>`
-    : p === "schema:keywords" ? `<span class="pill">${esc(r.o)}</span>`
+    p === "schema:keywords" ? `<a class="pill" href="./?q=${encodeURIComponent(r.o)}">${esc(r.o)}</a>`
     : /^https?:/.test(r.o) ? link(r.o, r.ol)
     : esc(r.o);
-  const order = [...Object.keys(FIELDS), ...Object.keys(by).filter(p => !(p in FIELDS))];
-  $("facts").innerHTML = order.filter(p => by[p] && !HIDDEN.has(p)).map(p => {
-    const sep = p === "owl:sameAs" || p === "schema:keywords" ? " " : ", ";
-    return `<dt>${esc(FIELDS[p] || curie(p))}</dt><dd>${pickLang(by[p]).map(r => value(p, r)).join(sep)}</dd>`;
-  }).join("");
+  const order = [...Object.keys(FIELDS), ...Object.keys(by).filter(p => !(p in FIELDS))].filter(p => by[p] && !HIDDEN.has(p));
+  $("facts").innerHTML = order.map(p =>
+    `<div><dt>${esc(FIELDS[p] || curie(p))}</dt><dd>${pickLang(by[p]).map(r => value(p, r)).join(p === "schema:keywords" ? " " : ", ")}</dd></div>`).join("");
+  $("facts-block").hidden = !order.length;
 
-  // co wskazuje na ten rekord (dzieła autora, obiekty w kolekcji…) jako karty
-  $("inverse").innerHTML = Object.entries(Object.groupBy(inc, r => curie(r.p))).map(([p, rows]) => `
-    <section class="section">
-      <h2>${esc(INVERSE[p] || "Powiązane")} <span class="muted">${rows.length}</span></h2>
-      <ul class="grid">${rows.map(card).join("")}</ul>
-    </section>`).join("");
+  // cytowanie (tylko obiekty z sygnaturą)
+  if (sig) {
+    const material = text("schema:material")[0];
+    const cite = [creators.map(r => r.ol).join(", "), title, date, material].filter(Boolean).join(", ")
+      + `. Instytut Biblioteka Polska w Paryżu, sygn. ${sig}. ${permalink}`;
+    $("cite").textContent = cite;
+    $("cite-block").hidden = false;
+    $("copy-cite").onclick = async e => { await navigator.clipboard.writeText(cite); e.target.textContent = "Skopiowano"; };
+  }
 
-  // dane otwarte
-  $("uri").textContent = uri;
-  $("formats").innerHTML = [["ttl", "text/turtle"], ["jsonld", "application/ld+json"], ["rdf", "application/rdf+xml"]]
-    .map(([ext, mime]) => `<a href="#" data-ext="${ext}" data-mime="${mime}">${ext}</a>`).join(" · ");
+  // identyfikatory i dane otwarte
+  const FORMATS = [["Turtle", "ttl", "text/turtle"], ["JSON-LD", "jsonld", "application/ld+json"], ["RDF/XML", "rdf", "application/rdf+xml"]];
+  $("ids").innerHTML = [
+    sig && `<li><span>Sygnatura</span><span class="sig">${esc(sig)}</span></li>`,
+    `<li><span>URI</span><span class="sig">${esc(uri)}</span></li>`,
+    manifest && `<li><span>IIIF</span><a href="${esc(manifest)}" target="_blank" rel="noopener">Manifest ↗</a></li>`,
+    `<li><span>Pobierz</span><span id="formats">${FORMATS.map(([name, ext, mime]) => `<a href="#" data-ext="${ext}" data-mime="${mime}">${name}</a>`).join(" · ")}</span></li>`,
+    `<li><span>Zapytania</span><a href="sparql.html">SPARQL</a></li>`,
+  ].filter(Boolean).join("");
   $("formats").onclick = async e => {
     const a = e.target.closest("a");
     if (!a) return;
@@ -145,13 +182,32 @@ const $ = id => document.getElementById(id);
     Object.assign(document.createElement("a"), { href: url, download: `${local.replaceAll("/", "_")}.${a.dataset.ext}` }).click();
     URL.revokeObjectURL(url);
   };
-  $("triples").innerHTML = out.map(r => `<tr><th>${link(r.p)}</th><td>${/^https?:/.test(r.o) ? link(r.o, r.ol) : esc(r.o)}${r.o_lang ? ` <span class="muted">@${esc(r.o_lang)}</span>` : ""}</td></tr>`).join("");
+  const same = by["owl:sameAs"] || [];
+  $("ext").innerHTML = same.map(r => `<li><span>${esc(sourceName(r.o))}</span><a href="${esc(r.o)}" target="_blank" rel="noopener">${esc(r.o.split("/").pop())} ↗</a></li>`).join("");
+  $("ext-block").hidden = !same.length;
+
+  // inne prace twórcy: poziomy pasek
+  $("more").innerHTML = Object.values(Object.groupBy(more, r => r.by)).map(rows => {
+    const who = creators.find(c => c.o === rows[0].by);
+    return `<section class="section">
+      <div class="section-head"><h2 class="display">Więcej: ${esc(who?.ol || "")}</h2><a class="label" href="./?creator=${encodeURIComponent(rows[0].by)}">Wszystkie →</a></div>
+      <ul class="grid strip">${rows.map(card).join("")}</ul>
+    </section>`;
+  }).join("");
+
+  // co wskazuje na ten rekord (dzieła osoby, obiekty w kolekcji…)
+  $("inverse").innerHTML = Object.entries(Object.groupBy(inc, r => curie(r.p))).map(([p, rows]) => `
+    <section class="section">
+      <div class="section-head"><h2 class="display">${esc(INVERSE[p] || "Powiązane")}</h2><span class="label">${rows.length} ${plural(rows.length, "obiekt", "obiekty", "obiektów")}</span></div>
+      <ul class="grid">${rows.map(card).join("")}</ul>
+    </section>`).join("");
+
+  $("triples").innerHTML = out.map(r => `<tr><th>${esc(curie(r.p))}</th><td>${/^https?:/.test(r.o) ? link(r.o, r.ol) : esc(r.o)}${r.o_lang ? ` <span class="muted">@${esc(r.o_lang)}</span>` : ""}</td></tr>`).join("");
 
   // skan: viewer wybierany ?viewer=…, skrypt ładowany dopiero po wyborze
-  const manifest = by["schema:associatedMedia"]?.[0]?.o;
   if (manifest) {
-    $("record").classList.remove("no-media");
     $("stage").hidden = false;
+    $("manifest-link").href = manifest;
     const key = VIEWERS[params.get("viewer")] ? params.get("viewer") : "mirador";
     $("viewer-tabs").innerHTML = Object.entries(VIEWERS).map(([k, v]) => {
       const p = new URLSearchParams(params);
@@ -166,32 +222,31 @@ const $ = id => document.getElementById(id);
       .catch(() => (el.innerHTML = `<p class="empty">Nie udało się wczytać viewera ${v.name}. <a href="${esc(manifest)}">Manifest IIIF</a></p>`));
   }
 
-  // graf sąsiedztwa: węzły = IRI (literały są w opisie)
-  const css = getComputedStyle(document.documentElement);
-  const color = n => css.getPropertyValue(n).trim();
+  // graf sąsiedztwa: węzły = IRI (literały są w szczegółach)
+  const color = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const nodes = new Map([[uri, title]]), edges = [];
-  for (const r of out) if (/^https?:/.test(r.o) && !HIDDEN.has(curie(r.p))) { nodes.set(r.o, r.ol || sourceName(r.o)); edges.push([uri, r.o, r.p]); }
-  for (const r of inc) { nodes.set(r.s, r.label); edges.push([r.s, uri, r.p]); }
-  if (edges.length) {
-    const cy = cytoscape({
-      container: $("graph"),
-      elements: [
-        ...[...nodes].map(([id, label]) => ({ data: { id, label }, classes: id === uri ? "me" : id.startsWith(BASE) ? "" : "ext" })),
-        ...edges.map(([s, t, p], i) => ({ data: { id: "e" + i, source: s, target: t, label: FIELDS[curie(p)] || curie(p) } })),
-      ],
-      // gwiazda: rekord w środku, sąsiedzi na okręgu
-      layout: { name: "concentric", concentric: n => (n.id() === uri ? 2 : 1), levelWidth: () => 1, minNodeSpacing: 130, padding: 40, animate: false },
-      userZoomingEnabled: false, // kółko myszy przewija stronę, nie graf
-      maxZoom: 1.3,
-      style: [
-        { selector: "node", style: { label: "data(label)", "font-family": "Inter, sans-serif", "font-size": 11, color: color("--ink"), "background-color": color("--muted"), width: 14, height: 14, "text-margin-y": -4, "text-wrap": "ellipsis", "text-max-width": 140 } },
-        { selector: ".me", style: { "background-color": color("--accent"), width: 26, height: 26, "font-size": 13, "font-weight": 600 } },
-        { selector: ".ext", style: { "background-color": color("--surface"), "border-width": 2, "border-color": color("--muted") } },
-        { selector: "edge", style: { label: "data(label)", "font-family": "Inter, sans-serif", "font-size": 9, color: color("--muted"), "curve-style": "bezier", "target-arrow-shape": "triangle", "arrow-scale": .8, width: 1, "line-color": color("--line"), "target-arrow-color": color("--line"), "text-background-color": color("--surface"), "text-background-opacity": 1, "text-background-padding": 2 } },
-      ],
-    });
-    cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });
-  } else $("graph-section").hidden = true;
+  const SKIP = new Set(["rdf:type", "schema:associatedMedia", "schema:thumbnailUrl"]);
+  for (const r of out) if (/^https?:/.test(r.o) && !SKIP.has(curie(r.p))) { nodes.set(r.o, r.ol || sourceName(r.o)); edges.push([uri, r.o, r.p]); }
+  for (const r of inc) { nodes.set(r.s, titleOf(r)); edges.push([r.s, uri, r.p]); }
+  if (!edges.length) return ($("graph-section").hidden = true);
+  const cy = cytoscape({
+    container: $("graph"),
+    elements: [
+      ...[...nodes].map(([id, label]) => ({ data: { id, label }, classes: id === uri ? "me" : id.startsWith(BASE) ? "" : "ext" })),
+      ...edges.map(([s, t, p], i) => ({ data: { id: "e" + i, source: s, target: t, label: FIELDS[curie(p)] || curie(p) } })),
+    ],
+    // gwiazda: rekord w środku, sąsiedzi na okręgu
+    layout: { name: "concentric", concentric: n => (n.id() === uri ? 2 : 1), levelWidth: () => 1, minNodeSpacing: 130, padding: 40, animate: false },
+    userZoomingEnabled: false, // kółko myszy przewija stronę, nie graf
+    maxZoom: 1.3,
+    style: [
+      { selector: "node", style: { shape: "rectangle", label: "data(label)", "font-family": "Archivo, sans-serif", "font-size": 11, "font-weight": 600, color: color("--ink"), "background-color": color("--ink"), width: 12, height: 12, "text-margin-y": -6, "text-wrap": "ellipsis", "text-max-width": 150 } },
+      { selector: ".me", style: { "background-color": color("--accent"), width: 22, height: 22, "font-size": 13 } },
+      { selector: ".ext", style: { "background-color": "#fff", "border-width": 1, "border-color": color("--ink") } },
+      { selector: "edge", style: { label: "data(label)", "font-family": "JetBrains Mono, monospace", "font-size": 8, color: color("--muted"), "curve-style": "straight", "target-arrow-shape": "triangle", "arrow-scale": .7, width: 1, "line-color": color("--ink"), "target-arrow-color": color("--ink"), "text-background-color": "#fff", "text-background-opacity": 1, "text-background-padding": 2 } },
+    ],
+  });
+  cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });
 })().catch(e => ($("title").textContent = "Błąd: " + e.message));
 </script>
 </body>

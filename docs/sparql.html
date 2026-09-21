@@ -10,22 +10,27 @@
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-  <a href="./" class="brand"><span class="brand-mark" aria-hidden="true">BP</span><span class="brand-name">Instytut Biblioteka Polska w Paryżu<small>Zbiory cyfrowe</small></span></a>
-  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html" aria-current="page">SPARQL</a></nav>
+  <a href="./" class="wordmark">Instytut Biblioteka Polska w Paryżu</a>
+  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html" aria-current="page">Dane otwarte</a></nav>
 </div></header>
+
 <main class="wrap">
   <div class="page-head">
-    <p class="kicker">Otwarte dane</p>
+    <p class="label">Dane otwarte</p>
     <h1>Zapytania SPARQL</h1>
     <p>Wszystkie rekordy są dostępne jako graf wiedzy (schema.org, powiązania z Wikidata i VIAF). Endpoint: <code id="ep"></code> · <a href="data/objects.ttl" download>pobierz cały zbiór (Turtle)</a></p>
   </div>
   <div id="yasgui"></div>
 </main>
 
-<footer class="site-footer"><div class="wrap">
-  <span>Instytut Biblioteka Polska w Paryżu · wersja pilotażowa</span>
-  <nav><a href="data/objects.ttl">Dane (Turtle)</a><a href="sparql.html">SPARQL</a><a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a></nav>
-</div></footer>
+<footer class="site-footer">
+  <div class="wrap footer-top">
+    <div><strong>Instytut Biblioteka Polska w Paryżu</strong>Bibliothèque Polonaise de Paris</div>
+    <ul><li><a href="./">Zbiory</a></li><li><a href="sparql.html">Dane otwarte i SPARQL</a></li><li><a href="data/objects.ttl">Pobierz dane (Turtle)</a></li></ul>
+    <p>Wersja pilotażowa. Obrazy udostępniane w standardzie <a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a>, metadane jako Linked Open Data.</p>
+  </div>
+  <div class="footer-giant" aria-hidden="true">Biblioteka Polska<span>.</span></div>
+</footer>
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
 <script>
