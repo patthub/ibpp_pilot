@@ -27,7 +27,9 @@ document.querySelector("[name=q]").value = q;
 
 (async () => {
   // typy obiektów z liczbą rekordów → filtr
-  const facets = await sparql(`SELECT ?t (COUNT(DISTINCT ?s) AS ?n) WHERE { ?s a ?t FILTER(STRSTARTS(STR(?s), "${BASE}")) } GROUP BY ?t ORDER BY DESC(?n)`);
+  // obiekt = rekord katalogowy z sygnaturą; osoby, miejsca, kolekcje i organizacje jej nie mają
+  const OBJECT = `?s a ?t ; schema:identifier [] .`;
+  const facets = await sparql(`SELECT ?t (COUNT(DISTINCT ?s) AS ?n) WHERE { ${OBJECT} } GROUP BY ?t ORDER BY DESC(?n)`);
   // typ z URL przyjmujemy tylko, jeśli jest na liście, więc nie trafia do zapytania z zewnątrz
   const type = facets.find(f => f.t === params.get("type"))?.t;
   document.querySelector("[name=type]").value = type || "";
@@ -41,8 +43,7 @@ document.querySelector("[name=q]").value = q;
   // ponytail: pełnotekstowe = skan CONTAINS po literałach rekordu i sąsiadów (autor, temat…); indeks tekstowy (np. Meilisearch), gdy zwolni
   const rows = await sparql(`
     SELECT ?s (SAMPLE(?lbl) AS ?label) (SAMPLE(?t) AS ?type) (SAMPLE(?th) AS ?thumb) (SAMPLE(?c) AS ?creator) (SAMPLE(?d) AS ?date) WHERE {
-      ?s a ?t .
-      FILTER(STRSTARTS(STR(?s), "${BASE}"))
+      ${OBJECT}
       ${type ? `FILTER(?t = <${type}>)` : ""}
       ${q ? `FILTER EXISTS { { ?s ?p1 ?v } UNION { ?s ?p1 ?n . ?n ?p2 ?v } FILTER(isLiteral(?v) && CONTAINS(LCASE(STR(?v)), LCASE(${JSON.stringify(q)}))) }` : ""}
       ${labelOf("?s", "lbl")}
