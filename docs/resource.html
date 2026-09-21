@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Instytut Biblioteka Polska w Paryżu</title>
 <link rel="stylesheet" href="style.css">
+<script>/* wariant wyglądu przed pierwszym renderem (?theme= zapamiętany w localStorage) */ try { const t = new URLSearchParams(location.search).get("theme"); if (t) localStorage.setItem("theme", t); document.documentElement.dataset.theme = localStorage.getItem("theme") || "paryz"; } catch { document.documentElement.dataset.theme = "paryz"; }</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
 </head>
 <body>
@@ -240,10 +241,10 @@ const permalink = location.origin + location.pathname + "?id=" + encodeURICompon
     userZoomingEnabled: false, // kółko myszy przewija stronę, nie graf
     maxZoom: 1.3,
     style: [
-      { selector: "node", style: { shape: "rectangle", label: "data(label)", "font-family": "Archivo, sans-serif", "font-size": 11, "font-weight": 600, color: color("--ink"), "background-color": color("--ink"), width: 12, height: 12, "text-margin-y": -6, "text-wrap": "ellipsis", "text-max-width": 150 } },
+      { selector: "node", style: { shape: "rectangle", label: "data(label)", "font-family": color("--sans"), "font-size": 11, "font-weight": 600, color: color("--ink"), "background-color": color("--ink"), width: 12, height: 12, "text-margin-y": -6, "text-wrap": "ellipsis", "text-max-width": 150 } },
       { selector: ".me", style: { "background-color": color("--accent"), width: 22, height: 22, "font-size": 13 } },
-      { selector: ".ext", style: { "background-color": "#fff", "border-width": 1, "border-color": color("--ink") } },
-      { selector: "edge", style: { label: "data(label)", "font-family": "JetBrains Mono, monospace", "font-size": 8, color: color("--muted"), "curve-style": "straight", "target-arrow-shape": "triangle", "arrow-scale": .7, width: 1, "line-color": color("--ink"), "target-arrow-color": color("--ink"), "text-background-color": "#fff", "text-background-opacity": 1, "text-background-padding": 2 } },
+      { selector: ".ext", style: { "background-color": color("--paper"), "border-width": 1, "border-color": color("--ink") } },
+      { selector: "edge", style: { label: "data(label)", "font-family": color("--sans"), "font-size": 8, color: color("--muted"), "curve-style": "straight", "target-arrow-shape": "triangle", "arrow-scale": .7, width: 1, "line-color": color("--ink"), "target-arrow-color": color("--ink"), "text-background-color": color("--paper"), "text-background-opacity": 1, "text-background-padding": 2 } },
     ],
   });
   cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });

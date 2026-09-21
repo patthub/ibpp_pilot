@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SPARQL – Instytut Biblioteka Polska w Paryżu</title>
 <link rel="stylesheet" href="style.css">
+<script>/* wariant wyglądu przed pierwszym renderem (?theme= zapamiętany w localStorage) */ try { const t = new URLSearchParams(location.search).get("theme"); if (t) localStorage.setItem("theme", t); document.documentElement.dataset.theme = localStorage.getItem("theme") || "paryz"; } catch { document.documentElement.dataset.theme = "paryz"; }</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.js"></script>
 </head>
