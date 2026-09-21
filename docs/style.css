@@ -44,7 +44,7 @@ h1, h2, h3 { margin: 0; line-height: 1.05; }
 /* hero: typografia jako główny element */
 .hero { border-bottom: 1px solid var(--line); background: var(--paper) var(--grain); }
 .hero .wrap { padding-top: clamp(28px, 5vw, 64px); padding-bottom: clamp(24px, 3vw, 40px); }
-.hero h1 { font-size: clamp(2.6rem, 8.4vw, 8.6rem); font-weight: 800; font-stretch: 118%; text-transform: uppercase; letter-spacing: -.03em; line-height: .9; }
+.hero h1 { font-size: clamp(2.2rem, 5.6vw, 5.8rem); font-weight: 800; font-stretch: 118%; text-transform: uppercase; letter-spacing: -.03em; line-height: .9; }
 .hero h1 span { color: var(--accent); }
 .hero-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; margin: 22px 0 28px; }
 .hero-meta p { margin: 0; max-width: 60ch; font-size: 1.05rem; }

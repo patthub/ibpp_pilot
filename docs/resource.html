@@ -78,7 +78,7 @@
 <script>
 // pokazane gdzie indziej niż w „Szczegółach”
 const HIDDEN = new Set(["rdf:type", "schema:name", "schema:description", "schema:associatedMedia", "schema:thumbnailUrl", "schema:identifier", "owl:sameAs"]);
-// ponytail: przełącznik tylko do porównania viewerów; po decyzji zostaje jeden, reszta do usunięcia
+// użytkownik wybiera viewer (?viewer=…); skrypt ładuje się dopiero po wyborze
 const VIEWERS = {
   mirador: {
     name: "Mirador",
