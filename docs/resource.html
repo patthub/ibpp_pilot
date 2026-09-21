@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biblioteka Polska w Paryżu</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/mirador@3.4.3/dist/mirador.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+</head>
+<body>
+<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
+<main>
+  <h1 id="title">…</h1>
+  <p class="muted"><code id="uri"></code> · <span id="formats"></span></p>
+  <div id="viewer" hidden></div>
+  <section class="cols">
+    <div>
+      <h2>Metadane</h2>
+      <table id="meta"></table>
+      <h2 id="in-h" hidden>Powiązane</h2>
+      <table id="in"></table>
+    </div>
+    <div>
+      <h2>Graf</h2>
+      <div id="graph"></div>
+    </div>
+  </section>
+</main>
+<script src="sparql-local.js"></script>
+<script src="app.js"></script>
+<script>
+const IIIF = PREFIXES.schema + "associatedMedia"; // obiekt → URL manifestu IIIF
+const local = new URLSearchParams(location.search).get("id") || "";
+const uri = BASE + local;
+
+(async () => {
+  if (/[<>"{}|\\^`\s]/.test(uri)) throw new Error("niepoprawny identyfikator"); // uri trafia do zapytania
+  document.getElementById("uri").textContent = uri;
+  // pobranie rekordu jako RDF (DESCRIBE przez ten sam endpoint)
+  const formats = document.getElementById("formats");
+  formats.innerHTML = [["ttl", "text/turtle"], ["jsonld", "application/ld+json"], ["rdf", "application/rdf+xml"]]
+    .map(([ext, mime]) => `<a href="#" data-ext="${ext}" data-mime="${mime}">${ext}</a>`).join(" · ");
+  formats.onclick = async e => {
+    const a = e.target.closest("a");
+    if (!a) return;
+    e.preventDefault();
+    const r = await fetch("sparql", { method: "POST", headers: { "Content-Type": "application/sparql-query", Accept: a.dataset.mime }, body: `DESCRIBE <${uri}>` });
+    const url = URL.createObjectURL(await r.blob());
+    Object.assign(document.createElement("a"), { href: url, download: `${local.replaceAll("/", "_")}.${a.dataset.ext}` }).click();
+    URL.revokeObjectURL(url);
+  };
+
+  const [out, inc] = await Promise.all([
+    sparql(`SELECT ?p ?o (SAMPLE(?l) AS ?ol) WHERE { <${uri}> ?p ?o ${labelOf("?o", "l")} } GROUP BY ?p ?o ORDER BY ?p`),
+    sparql(`SELECT ?s ?p (SAMPLE(?l) AS ?sl) WHERE { ?s ?p <${uri}> ${labelOf("?s", "l")} } GROUP BY ?s ?p ORDER BY ?p LIMIT 500`),
+  ]);
+  if (!out.length && !inc.length) throw new Error("nie ma takiego zasobu");
+
+  const names = out.filter(r => /(name|label|prefLabel|title)$/.test(r.p));
+  const title = (names.find(r => r.o_lang === "pl") || names[0] || out.find(r => r.p.endsWith("identifier")))?.o || curie(uri);
+  document.getElementById("title").textContent = document.title = title;
+
+  // metadane: jedna linia na predykat, wartości po przecinku
+  const cell = r => (/^https?:/.test(r.o) ? link(r.o, r.ol) : esc(r.o) + (r.o_lang ? ` <sup class="muted">${esc(r.o_lang)}</sup>` : ""));
+  const rows = (list, p, v) => Object.entries(Object.groupBy(list, r => r[p]))
+    .map(([pr, rs]) => `<tr><th>${link(pr)}</th><td>${rs.map(v).join(", ")}</td></tr>`).join("");
+  document.getElementById("meta").innerHTML = rows(out, "p", cell);
+  document.getElementById("in").innerHTML = rows(inc, "p", r => link(r.s, r.sl));
+  document.getElementById("in-h").hidden = !inc.length;
+
+  // skany
+  const manifest = out.find(r => r.p === IIIF)?.o;
+  if (manifest) {
+    document.getElementById("viewer").hidden = false;
+    Mirador.viewer({
+      id: "viewer",
+      windows: [{ manifestId: manifest }],
+      window: { allowClose: false, allowMaximize: false, defaultSideBarPanel: "info", sideBarOpenByDefault: false },
+      workspaceControlPanel: { enabled: false },
+    });
+  }
+
+  // graf sąsiedztwa: węzły = IRI (literały są w tabeli), IIIF pomijamy
+  const nodes = new Map([[uri, title]]), edges = [];
+  for (const r of out) if (/^https?:/.test(r.o) && r.p !== IIIF) { nodes.set(r.o, r.ol || curie(r.o)); edges.push([uri, r.o, r.p]); }
+  for (const r of inc) { nodes.set(r.s, r.sl || curie(r.s)); edges.push([r.s, uri, r.p]); }
+  const cy = cytoscape({
+    container: document.getElementById("graph"),
+    elements: [
+      ...[...nodes].map(([id, label]) => ({ data: { id, label }, classes: id === uri ? "me" : id.startsWith(BASE) ? "" : "ext" })),
+      ...edges.map(([s, t, p], i) => ({ data: { id: "e" + i, source: s, target: t, label: curie(p) } })),
+    ],
+    layout: { name: "cose", animate: false },
+    style: [
+      { selector: "node", style: { label: "data(label)", "font-size": 10, "background-color": "#8a6d3b", "text-wrap": "ellipsis", "text-max-width": 120 } },
+      { selector: ".me", style: { "background-color": "#b22", width: 40, height: 40 } },
+      { selector: ".ext", style: { "background-color": "#999" } },
+      { selector: "edge", style: { label: "data(label)", "font-size": 8, "curve-style": "bezier", "target-arrow-shape": "triangle", width: 1, color: "#666" } },
+    ],
+  });
+  cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });
+})().catch(e => (document.getElementById("title").textContent = "Błąd: " + e.message));
+</script>
+</body>
+</html>

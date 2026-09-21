@@ -1,0 +1,191 @@
+# WYGENEROWANE przez build.py – nie edytuj ręcznie
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bpp: <https://data.bpp.example/id/> .
+@prefix schema: <http://schema.org/> .
+bpp:THL.BPP.Rz.354 schema:identifier "THL.BPP.Rz.354" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:name "Czarodziejski pałac nr 2"@pl .
+bpp:collection\/boleslas-biegas a schema:Collection ;
+	schema:name "Bolesław Biegas"@pl , "Boleslas Biegas"@en , "Bolesław Biegas"@fr .
+bpp:THL.BPP.Rz.354 schema:isPartOf bpp:collection\/boleslas-biegas .
+bpp:subject\/zamek a schema:Thing ;
+	schema:name "Zamek"@pl .
+bpp:THL.BPP.Rz.354 schema:about bpp:subject\/zamek ;
+	schema:license "PD" .
+bpp:THL.BPP.Rz.247 schema:identifier "THL.BPP.Rz.247" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:name "Olga Boznańska"@pl , "Olga Boznańska"@en , "Olga Boznańska"@fr ;
+	schema:alternateName "Popiersie Olgi Boznańskiej"@pl , "Bust of Olga Boznańska"@en , "Buste d'Olga Boznańska"@fr ;
+	schema:description "Popiersie Olgi Boznańskiej autorstwa Bolesława Biegasa powstało w Paryżu wkrótce po przyjeździe artysty do Francji. Wykonane w gipsie przedstawia wybitną malarkę w pełnym skupienia ujęciu, z delikatnie wymodelowaną twarzą i swobodnie opracowaną powierzchnią rzeźby. Jest to jedno z najwcześniejszych dzieł portretowych Biegasa z okresu paryskiego, ukazujące jego zainteresowanie psychologicznym charakterem portretu oraz bliską relację z Olgą Boznańską."@pl , "The bust of Olga Boznańska by Bolesław Biegas was created in Paris shortly after the artist's arrival in France. Executed in plaster, it portrays the distinguished painter in a contemplative pose, with delicately modelled facial features and a freely treated sculptural surface. It is one of Biegas's earliest portrait sculptures from his Paris period, reflecting both his interest in the psychological dimension of portraiture and his close relationship with Olga Boznańska."@en , "Le Buste d'Olga Boznańska, réalisé par Boleslas Biegas, a été créé à Paris peu après l'arrivée du sculpteur en France. Exécuté en plâtre, il représente la célèbre peintre dans une attitude de recueillement, avec un visage délicatement modelé et une surface sculptée traitée avec liberté. Cette œuvre compte parmi les premiers portraits réalisés par Biegas durant sa période parisienne et témoigne de son intérêt pour la dimension psychologique du portrait ainsi que de sa relation étroite avec Olga Boznańska."@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Portret"@pl , "Sculpture"@en , "portrait"@en , "Sculpture"@fr , "portrait"@fr .
+bpp:collection\/boleslas-biegas schema:name "Kolekcja Bolesław Biegas"@pl , "Boleslas Biegas"@fr .
+bpp:THL.BPP.Rz.247 schema:isPartOf bpp:collection\/boleslas-biegas .
+bpp:subject\/olga-boznanska a schema:Thing ;
+	schema:name "Olga Boznańska"@pl , "Olga Boznańska"@en , "Olga Boznańska"@fr .
+bpp:THL.BPP.Rz.247 schema:about bpp:subject\/olga-boznanska .
+bpp:agent\/Q2909319 a schema:Person ;
+	schema:name "Boleslas Biegas"@pl , "Bolesław Biegas"@en , "Boleslaw Biegas"@fr ;
+	owl:sameAs wd:Q2909319 , <http://viaf.org/viaf/295274604> .
+bpp:THL.BPP.Rz.247 schema:creator bpp:agent\/Q2909319 .
+bpp:place\/paris a schema:Place ;
+	schema:name "Paryż"@pl , "Paris"@en , "Paris"@fr .
+bpp:THL.BPP.Rz.247 schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1902"^^xsd:gYear ;
+	schema:height "55 cm" ;
+	schema:width "28 cm" ;
+	schema:depth "18 cm" .
+bpp:org\/ibpp a schema:Organization ;
+	schema:name "IBPP"@pl , "IBPP"@en , "IBPP"@fr .
+bpp:THL.BPP.Rz.247 schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp ;
+	schema:license "THL" ;
+	schema:associatedMedia <https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/manifest.json> ;
+	schema:thumbnailUrl <https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/thumb.jpg> .
+bpp:THL.BPP.Rz.301 schema:identifier "THL.BPP.Rz.301" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:name "Wyspa Miłości"@pl , "The Island of Love"@en , "L'Ile de'Amour"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr .
+bpp:agent\/Q2909319 schema:name "Bolesław Biegas"@fr .
+bpp:THL.BPP.Rz.301 schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "53 cm" ;
+	schema:width "44 cm" ;
+	schema:depth "14 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.306 schema:identifier "THL.BPP.Rz.306" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "170 cm" ;
+	schema:width "50 cm" ;
+	schema:depth "38 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.248 schema:identifier "THL.BPP.Rz.248" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "60 cm" ;
+	schema:width "18 cm" ;
+	schema:depth "13.5 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.356 schema:identifier "THL.BPP.Rz.356" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips patynowany"@pl , "Patinated plaster"@en , "Plâtre patiné"@fr ;
+	schema:artMedium "Odlew gipsowy patynowany"@pl , "Patinated plaster cast"@en , "Moulage en plâtre patiné"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "62 cm" ;
+	schema:width "32 cm" ;
+	schema:depth "21 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.126 schema:identifier "THL.BPP.Rz.126" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "53 cm" ;
+	schema:width "15 cm" ;
+	schema:depth "12 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.152 schema:identifier "THL.BPP.Rz.152" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "49 cm" ;
+	schema:width "24 cm" ;
+	schema:depth "9 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.249 schema:identifier "THL.BPP.Rz.249" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "64 cm" ;
+	schema:width "30 cm" ;
+	schema:depth "23 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.355 schema:identifier "THL.BPP.Rz.355" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "34 cm" ;
+	schema:width "14 cm" ;
+	schema:depth "14.5 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.305 schema:identifier "THL.BPP.Rz.305" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Gips"@pl , "Plaster"@en , "Plâtre"@fr ;
+	schema:artMedium "Odlew gipsowy"@pl , "Plaster cast"@en , "Moulage en plâtre"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1903"^^xsd:gYear ;
+	schema:height "62 cm" ;
+	schema:width "32 cm" ;
+	schema:depth "21 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .
+bpp:THL.BPP.Rz.198 schema:identifier "THL.BPP.Rz.198" ;
+	a schema:Sculpture ;
+	schema:artform "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:material "Brąz patynowany"@pl , "Patinated bronze"@en , "Bronze patiné"@fr ;
+	schema:artMedium "Odlew z brązu patynowany"@pl , "Patinated bronze cast"@en , "Moulage en bronze patiné"@fr ;
+	schema:keywords "Rzeźba"@pl , "Sculpture"@en , "Sculpture"@fr ;
+	schema:creator bpp:agent\/Q2909319 ;
+	schema:locationCreated bpp:place\/paris ;
+	schema:dateCreated "1902"^^xsd:gYear ;
+	schema:height "46 cm" ;
+	schema:width "41.5 cm" ;
+	schema:depth "14 cm" ;
+	schema:provider bpp:org\/ibpp ;
+	schema:holdingArchive bpp:org\/ibpp .

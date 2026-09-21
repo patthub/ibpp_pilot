@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biblioteka Polska w Paryżu – zbiory cyfrowe</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
+<main>
+  <form>
+    <input type="search" name="q" placeholder="Tytuł, autor, temat…" aria-label="Szukaj">
+    <input type="hidden" name="type">
+    <button>Szukaj</button>
+  </form>
+  <div id="facets" class="chips"></div>
+  <p id="status"></p>
+  <ul id="results" class="results"></ul>
+</main>
+<script src="sparql-local.js"></script>
+<script src="app.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const q = params.get("q") || "";
+document.querySelector("[name=q]").value = q;
+
+(async () => {
+  // typy obiektów z liczbą rekordów → filtr
+  const facets = await sparql(`SELECT ?t (COUNT(DISTINCT ?s) AS ?n) WHERE { ?s a ?t FILTER(STRSTARTS(STR(?s), "${BASE}")) } GROUP BY ?t ORDER BY DESC(?n)`);
+  // typ z URL przyjmujemy tylko, jeśli jest na liście, więc nie trafia do zapytania z zewnątrz
+  const type = facets.find(f => f.t === params.get("type"))?.t;
+  document.querySelector("[name=type]").value = type || "";
+  const chip = (t, text) => {
+    const p = new URLSearchParams({ q, type: t || "" });
+    return `<a href="?${p}"${t === type ? ' aria-current="true"' : ""}>${esc(text)}</a>`;
+  };
+  document.getElementById("facets").innerHTML =
+    chip(undefined, "Wszystko") + facets.map(f => chip(f.t, `${curie(f.t)} (${f.n})`)).join("");
+
+  // ponytail: pełnotekstowe = skan CONTAINS po literałach rekordu i sąsiadów (autor, temat…); indeks tekstowy (np. Meilisearch), gdy zwolni
+  const rows = await sparql(`
+    SELECT ?s (SAMPLE(?lbl) AS ?label) (SAMPLE(?t) AS ?type) (SAMPLE(?th) AS ?thumb) (SAMPLE(?c) AS ?creator) (SAMPLE(?d) AS ?date) WHERE {
+      ?s a ?t .
+      FILTER(STRSTARTS(STR(?s), "${BASE}"))
+      ${type ? `FILTER(?t = <${type}>)` : ""}
+      ${q ? `FILTER EXISTS { { ?s ?p1 ?v } UNION { ?s ?p1 ?n . ?n ?p2 ?v } FILTER(isLiteral(?v) && CONTAINS(LCASE(STR(?v)), LCASE(${JSON.stringify(q)}))) }` : ""}
+      ${labelOf("?s", "lbl")}
+      OPTIONAL { ?s schema:thumbnailUrl ?th }
+      OPTIONAL { ?s schema:creator ?cr ${labelOf("?cr", "c")} }
+      OPTIONAL { ?s schema:dateCreated ?d }
+    } GROUP BY ?s ORDER BY LCASE(STR(?label)) LIMIT 200`);
+
+  document.getElementById("status").textContent = `${rows.length}${rows.length === 200 ? "+" : ""} wyników`;
+  document.getElementById("results").innerHTML = rows.map(r => `
+    <li>
+      ${r.thumb ? `<img src="${esc(r.thumb)}" alt="" loading="lazy">` : `<div class="noimg"></div>`}
+      <div>
+        <h2>${link(r.s, r.label)}</h2>
+        <p>${esc([r.creator, r.date].filter(Boolean).join(" · "))}</p>
+        <p class="muted">${esc(curie(r.type))}</p>
+      </div>
+    </li>`).join("");
+})().catch(e => (document.getElementById("status").textContent = "Błąd: " + e.message));
+</script>
+</body>
+</html>

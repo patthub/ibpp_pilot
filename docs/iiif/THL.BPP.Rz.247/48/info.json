@@ -1,0 +1,21 @@
+{
+  "@context": "http://iiif.io/api/image/3/context.json",
+  "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/48",
+  "type": "ImageService3",
+  "profile": "level0",
+  "protocol": "http://iiif.io/api/image",
+  "tiles": [
+    {
+      "scaleFactors": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ],
+      "width": 512
+    }
+  ],
+  "width": 5367,
+  "height": 7427
+}

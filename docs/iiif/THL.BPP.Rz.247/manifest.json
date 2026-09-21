@@ -1,0 +1,77 @@
+{
+ "@context": "http://iiif.io/api/presentation/3/context.json",
+ "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/manifest.json",
+ "type": "Manifest",
+ "label": {
+  "pl": [
+   "Olga Boznańska"
+  ]
+ },
+ "homepage": [
+  {
+   "id": "https://data.bpp.example/id/THL.BPP.Rz.247",
+   "type": "Text",
+   "label": {
+    "pl": [
+     "Rekord w katalogu"
+    ]
+   },
+   "format": "text/html"
+  }
+ ],
+ "seeAlso": [
+  {
+   "id": "https://data.bpp.example/id/THL.BPP.Rz.247.ttl",
+   "type": "Dataset",
+   "format": "text/turtle"
+  }
+ ],
+ "thumbnail": [
+  {
+   "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/thumb.jpg",
+   "type": "Image",
+   "format": "image/jpeg"
+  }
+ ],
+ "items": [
+  {
+   "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/canvas/1",
+   "type": "Canvas",
+   "label": {
+    "none": [
+     "48"
+    ]
+   },
+   "width": 5367,
+   "height": 7427,
+   "items": [
+    {
+     "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/canvas/1/page",
+     "type": "AnnotationPage",
+     "items": [
+      {
+       "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/canvas/1/page/image",
+       "type": "Annotation",
+       "motivation": "painting",
+       "target": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/canvas/1",
+       "body": {
+        "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/48/full/336,465/0/default.jpg",
+        "type": "Image",
+        "format": "image/jpeg",
+        "width": 336,
+        "height": 465,
+        "service": [
+         {
+          "id": "https://patthub.github.io/ibpp_pilot/iiif/THL.BPP.Rz.247/48",
+          "type": "ImageService3",
+          "profile": "level0"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

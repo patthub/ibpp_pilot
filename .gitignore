@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.DS_Store
+# źródła robocze (dane osobowe, kolumny wewnętrzne, pliki master) – publikujemy tylko wynik build.py
+scans/
+*.csv

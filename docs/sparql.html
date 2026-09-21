@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPARQL – Biblioteka Polska w Paryżu</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.js"></script>
+</head>
+<body>
+<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
+<main class="wide">
+  <p class="muted">Endpoint: <code id="ep"></code> · <a href="data/objects.ttl" download>cały zbiór (Turtle)</a></p>
+  <div id="yasgui"></div>
+</main>
+<script src="sparql-local.js"></script>
+<script src="app.js"></script>
+<script>
+const endpoint = new URL("sparql", location.href).href; // obsługuje sparql-local.js
+document.getElementById("ep").textContent = endpoint;
+Yasgui.Yasqe.defaults.value = SPARQL_PREFIXES + "\n\nSELECT ?s ?p ?o WHERE {\n  ?s ?p ?o\n} LIMIT 50";
+new Yasgui(document.getElementById("yasgui"), {
+  requestConfig: { endpoint },
+  copyEndpointOnNewTab: false,
+  persistenceId: null, // bez pamiętania zakładek w localStorage
+});
+</script>
+</body>
+</html>
