@@ -29,3 +29,4 @@ table { border-collapse: collapse; width: 100%; }
 th, td { text-align: left; vertical-align: top; padding: .35rem .5rem; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
 th { font-weight: normal; color: var(--muted); width: 35%; font-size: .9em; }
 #graph { height: 420px; border: 1px solid var(--line); background: #fff; }
+#viewer > clover-viewer { display: block; height: 100%; }
