@@ -121,11 +121,3 @@ const CARD_WHERE = `
   OPTIONAL { ?s schema:dateCreated ?d }
   OPTIONAL { ?s schema:identifier ?ident }`;
 
-// ponytail: tymczasowy przełącznik wariantów wyglądu (fonty i kolory); po wyborze zostaje jeden motyw
-const THEMES = { paryz: "Paryż 1838", czytelnia: "Czytelnia", archiwum: "Archiwum" };
-document.body.insertAdjacentHTML("beforeend", `<nav class="theme-switch" aria-label="Wariant wyglądu"><span>Wygląd</span>${
-  Object.entries(THEMES).map(([k, name]) => {
-    const p = new URLSearchParams(location.search);
-    p.set("theme", k);
-    return `<a href="?${esc(p)}"${document.documentElement.dataset.theme === k ? ' aria-current="true"' : ""}>${name}</a>`;
-  }).join("")}</nav>`);

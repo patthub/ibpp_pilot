@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SPARQL – Instytut Biblioteka Polska w Paryżu</title>
 <link rel="stylesheet" href="style.css">
-<script>/* wariant wyglądu przed pierwszym renderem (?theme= zapamiętany w localStorage) */ try { const t = new URLSearchParams(location.search).get("theme"); if (t) localStorage.setItem("theme", t); document.documentElement.dataset.theme = localStorage.getItem("theme") || "paryz"; } catch { document.documentElement.dataset.theme = "paryz"; }</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.js"></script>
 </head>
 <body>
 <header class="site-header"><div class="wrap">
-  <a href="./" class="wordmark">Instytut Biblioteka Polska w Paryżu</a>
+  <a href="./" class="wordmark"><img src="img/logo-ibpp.png" alt="Instytut Biblioteka Polska w Paryżu" width="166" height="64"></a>
   <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html" aria-current="page">Dane otwarte</a></nav>
 </div></header>
 
@@ -30,7 +29,6 @@
     <ul><li><a href="./">Zbiory</a></li><li><a href="sparql.html">Dane otwarte i SPARQL</a></li><li><a href="data/objects.ttl">Pobierz dane (Turtle)</a></li></ul>
     <p>Wersja pilotażowa. Obrazy udostępniane w standardzie <a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a>, metadane jako Linked Open Data.</p>
   </div>
-  <div class="footer-giant" aria-hidden="true">Biblioteka Polska<span>.</span></div>
 </footer>
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
