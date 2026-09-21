@@ -3,21 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Biblioteka Polska w Paryżu – zbiory cyfrowe</title>
+<title>Zbiory cyfrowe – Instytut Biblioteka Polska w Paryżu</title>
+<meta name="description" content="Zbiory cyfrowe Instytutu Biblioteka Polska w Paryżu: rzeźby, rękopisy, fotografie i dzieła sztuki ze skanami IIIF i otwartymi danymi.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
-<main>
-  <form>
-    <input type="search" name="q" placeholder="Tytuł, autor, temat…" aria-label="Szukaj">
-    <input type="hidden" name="type">
-    <button>Szukaj</button>
-  </form>
-  <div id="facets" class="chips"></div>
-  <p id="status"></p>
-  <ul id="results" class="results"></ul>
+<header class="site-header"><div class="wrap">
+  <a href="./" class="brand"><span class="brand-mark" aria-hidden="true">BP</span><span class="brand-name">Instytut Biblioteka Polska w Paryżu<small>Zbiory cyfrowe</small></span></a>
+  <nav class="site-nav"><a href="./" aria-current="page">Zbiory</a><a href="sparql.html">SPARQL</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <p class="kicker">Zbiory cyfrowe</p>
+    <h1>Instytut Biblioteka Polska w Paryżu</h1>
+    <p>Rzeźby, rękopisy, fotografie i dzieła sztuki z kolekcji Biblioteki: skany w wysokiej rozdzielczości i otwarte dane.</p>
+    <form class="search" role="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" name="q" placeholder="Szukaj: tytuł, twórca, temat, materiał…" aria-label="Szukaj w zbiorach">
+      <input type="hidden" name="type">
+      <button class="btn">Szukaj</button>
+    </form>
+  </section>
+
+  <div class="toolbar">
+    <nav id="facets" class="chips" aria-label="Rodzaj obiektu"></nav>
+    <p id="status" class="muted" aria-live="polite"></p>
+  </div>
+  <ul id="results" class="grid"></ul>
 </main>
+
+<footer class="site-footer"><div class="wrap">
+  <span>Instytut Biblioteka Polska w Paryżu · wersja pilotażowa</span>
+  <nav><a href="data/objects.ttl">Dane (Turtle)</a><a href="sparql.html">SPARQL</a><a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a></nav>
+</div></footer>
+
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
 <script>
@@ -26,42 +46,35 @@ const q = params.get("q") || "";
 document.querySelector("[name=q]").value = q;
 
 (async () => {
-  // typy obiektów z liczbą rekordów → filtr
   // obiekt = rekord katalogowy z sygnaturą; osoby, miejsca, kolekcje i organizacje jej nie mają
   const OBJECT = `?s a ?t ; schema:identifier [] .`;
   const facets = await sparql(`SELECT ?t (COUNT(DISTINCT ?s) AS ?n) WHERE { ${OBJECT} } GROUP BY ?t ORDER BY DESC(?n)`);
   // typ z URL przyjmujemy tylko, jeśli jest na liście, więc nie trafia do zapytania z zewnątrz
   const type = facets.find(f => f.t === params.get("type"))?.t;
   document.querySelector("[name=type]").value = type || "";
-  const chip = (t, text) => {
+  const total = facets.reduce((a, f) => a + Number(f.n), 0);
+  const chip = (t, text, n) => {
     const p = new URLSearchParams({ q, type: t || "" });
-    return `<a href="?${p}"${t === type ? ' aria-current="true"' : ""}>${esc(text)}</a>`;
+    return `<a href="?${esc(p)}"${t === type ? ' aria-current="true"' : ""}>${esc(text)}<span class="count">${n}</span></a>`;
   };
   document.getElementById("facets").innerHTML =
-    chip(undefined, "Wszystko") + facets.map(f => chip(f.t, `${curie(f.t)} (${f.n})`)).join("");
+    chip(undefined, "Wszystko", total) + facets.map(f => chip(f.t, typeLabel(f.t), f.n)).join("");
 
   // ponytail: pełnotekstowe = skan CONTAINS po literałach rekordu i sąsiadów (autor, temat…); indeks tekstowy (np. Meilisearch), gdy zwolni
   const rows = await sparql(`
-    SELECT ?s (SAMPLE(?lbl) AS ?label) (SAMPLE(?t) AS ?type) (SAMPLE(?th) AS ?thumb) (SAMPLE(?c) AS ?creator) (SAMPLE(?d) AS ?date) WHERE {
+    SELECT ?s ${CARD_VARS} WHERE {
       ${OBJECT}
       ${type ? `FILTER(?t = <${type}>)` : ""}
       ${q ? `FILTER EXISTS { { ?s ?p1 ?v } UNION { ?s ?p1 ?n . ?n ?p2 ?v } FILTER(isLiteral(?v) && CONTAINS(LCASE(STR(?v)), LCASE(${JSON.stringify(q)}))) }` : ""}
-      ${labelOf("?s", "lbl")}
-      OPTIONAL { ?s schema:thumbnailUrl ?th }
-      OPTIONAL { ?s schema:creator ?cr ${labelOf("?cr", "c")} }
-      OPTIONAL { ?s schema:dateCreated ?d }
-    } GROUP BY ?s ORDER BY LCASE(STR(?label)) LIMIT 200`);
+      ${CARD_WHERE}
+    } GROUP BY ?s ORDER BY DESC(BOUND(?thumb)) LCASE(STR(?label)) LIMIT 200`);
 
-  document.getElementById("status").textContent = `${rows.length}${rows.length === 200 ? "+" : ""} wyników`;
-  document.getElementById("results").innerHTML = rows.map(r => `
-    <li>
-      ${r.thumb ? `<img src="${esc(r.thumb)}" alt="" loading="lazy">` : `<div class="noimg"></div>`}
-      <div>
-        <h2>${link(r.s, r.label)}</h2>
-        <p>${esc([r.creator, r.date].filter(Boolean).join(" · "))}</p>
-        <p class="muted">${esc(curie(r.type))}</p>
-      </div>
-    </li>`).join("");
+  const n = rows.length;
+  document.getElementById("status").textContent =
+    `${n}${n === 200 ? "+" : ""} ${plural(n, "obiekt", "obiekty", "obiektów")}${q ? ` dla „${q}”` : ""}`;
+  document.getElementById("results").innerHTML = n
+    ? rows.map(card).join("")
+    : `<li class="empty">Nic nie znaleziono. Spróbuj innego słowa albo <a href="./">wyczyść wyszukiwanie</a>.</li>`;
 })().catch(e => (document.getElementById("status").textContent = "Błąd: " + e.message));
 </script>
 </body>

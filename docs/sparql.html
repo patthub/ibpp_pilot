@@ -3,23 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SPARQL – Biblioteka Polska w Paryżu</title>
+<title>SPARQL – Instytut Biblioteka Polska w Paryżu</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@zazuko/yasgui@4/build/yasgui.min.js"></script>
 </head>
 <body>
-<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
-<main class="wide">
-  <p class="muted">Endpoint: <code id="ep"></code> · <a href="data/objects.ttl" download>cały zbiór (Turtle)</a></p>
+<header class="site-header"><div class="wrap">
+  <a href="./" class="brand"><span class="brand-mark" aria-hidden="true">BP</span><span class="brand-name">Instytut Biblioteka Polska w Paryżu<small>Zbiory cyfrowe</small></span></a>
+  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html" aria-current="page">SPARQL</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="page-head">
+    <p class="kicker">Otwarte dane</p>
+    <h1>Zapytania SPARQL</h1>
+    <p>Wszystkie rekordy są dostępne jako graf wiedzy (schema.org, powiązania z Wikidata i VIAF). Endpoint: <code id="ep"></code> · <a href="data/objects.ttl" download>pobierz cały zbiór (Turtle)</a></p>
+  </div>
   <div id="yasgui"></div>
 </main>
+
+<footer class="site-footer"><div class="wrap">
+  <span>Instytut Biblioteka Polska w Paryżu · wersja pilotażowa</span>
+  <nav><a href="data/objects.ttl">Dane (Turtle)</a><a href="sparql.html">SPARQL</a><a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a></nav>
+</div></footer>
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
 <script>
 const endpoint = new URL("sparql", location.href).href; // obsługuje sparql-local.js
 document.getElementById("ep").textContent = endpoint;
-Yasgui.Yasqe.defaults.value = SPARQL_PREFIXES + "\n\nSELECT ?s ?p ?o WHERE {\n  ?s ?p ?o\n} LIMIT 50";
+Yasgui.Yasqe.defaults.value = SPARQL_PREFIXES + `
+
+# Dzieła według twórców
+SELECT ?obiekt ?sygnatura ?tytul ?tworca ?data WHERE {
+  ?obiekt schema:identifier ?sygnatura ;
+          schema:creator/schema:name ?tworca .
+  FILTER(LANG(?tworca) = "pl")
+  OPTIONAL { ?obiekt schema:name ?tytul FILTER(LANG(?tytul) = "pl") }
+  OPTIONAL { ?obiekt schema:dateCreated ?data }
+} ORDER BY ?tworca ?data ?sygnatura`;
 new Yasgui(document.getElementById("yasgui"), {
   requestConfig: { endpoint },
   copyEndpointOnNewTab: false,

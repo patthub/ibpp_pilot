@@ -3,34 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Biblioteka Polska w Paryżu</title>
+<title>Instytut Biblioteka Polska w Paryżu</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
 </head>
 <body>
-<header><a href="./" class="brand">Biblioteka Polska w Paryżu · zbiory cyfrowe</a><nav><a href="./">Szukaj</a><a href="sparql.html">SPARQL</a></nav></header>
-<main>
-  <h1 id="title">…</h1>
-  <p class="muted"><code id="uri"></code> · <span id="formats"></span></p>
-  <nav id="viewer-tabs" class="chips" hidden></nav>
-  <div id="viewer" hidden></div>
-  <section class="cols">
-    <div>
-      <h2>Metadane</h2>
-      <table id="meta"></table>
-      <h2 id="in-h" hidden>Powiązane</h2>
-      <table id="in"></table>
+<header class="site-header"><div class="wrap">
+  <a href="./" class="brand"><span class="brand-mark" aria-hidden="true">BP</span><span class="brand-name">Instytut Biblioteka Polska w Paryżu<small>Zbiory cyfrowe</small></span></a>
+  <nav class="site-nav"><a href="./">Zbiory</a><a href="sparql.html">SPARQL</a></nav>
+</div></header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Ścieżka"><a href="./">Zbiory</a> / <span id="crumb"></span></nav>
+  <article id="record" class="record no-media">
+    <div id="stage" class="stage" hidden>
+      <div id="viewer"></div>
+      <nav id="viewer-tabs" class="chips viewer-tabs" aria-label="Wybór viewera"></nav>
     </div>
-    <div>
-      <h2>Graf</h2>
-      <div id="graph"></div>
+    <div class="info">
+      <p class="kicker" id="kind"></p>
+      <h1 id="title">…</h1>
+      <p class="byline" id="byline"></p>
+      <p class="lead" id="lead"></p>
+      <dl class="facts" id="facts"></dl>
     </div>
+  </article>
+
+  <div id="inverse"></div>
+
+  <section class="section" id="graph-section">
+    <h2>Powiązania</h2>
+    <div id="graph" aria-label="Graf powiązań"></div>
   </section>
+
+  <details class="data">
+    <summary>Dane otwarte (Linked Open Data)</summary>
+    <div>
+      <p>URI: <code id="uri"></code></p>
+      <p>Pobierz rekord: <span id="formats"></span> · <a href="sparql.html">zapytaj przez SPARQL</a></p>
+      <table id="triples"></table>
+    </div>
+  </details>
 </main>
+
+<footer class="site-footer"><div class="wrap">
+  <span>Instytut Biblioteka Polska w Paryżu · wersja pilotażowa</span>
+  <nav><a href="data/objects.ttl">Dane (Turtle)</a><a href="sparql.html">SPARQL</a><a href="https://iiif.io" target="_blank" rel="noopener">IIIF</a></nav>
+</div></footer>
+
 <script src="sparql-local.js"></script>
 <script src="app.js"></script>
 <script>
-const IIIF = PREFIXES.schema + "associatedMedia"; // obiekt → URL manifestu IIIF
+const HIDDEN = new Set(["rdf:type", "schema:name", "schema:description", "schema:associatedMedia", "schema:thumbnailUrl"]); // pokazane gdzie indziej
+// ponytail: przełącznik tylko do porównania viewerów; po decyzji zostaje jeden, reszta do usunięcia
 const VIEWERS = {
   mirador: {
     name: "Mirador",
@@ -59,17 +84,59 @@ const VIEWERS = {
     },
   },
 };
-const local = new URLSearchParams(location.search).get("id") || "";
+const params = new URLSearchParams(location.search);
+const local = params.get("id") || "";
 const uri = BASE + local;
+const $ = id => document.getElementById(id);
 
 (async () => {
   if (/[<>"{}|\\^`\s]/.test(uri)) throw new Error("niepoprawny identyfikator"); // uri trafia do zapytania
-  document.getElementById("uri").textContent = uri;
-  // pobranie rekordu jako RDF (DESCRIBE przez ten sam endpoint)
-  const formats = document.getElementById("formats");
-  formats.innerHTML = [["ttl", "text/turtle"], ["jsonld", "application/ld+json"], ["rdf", "application/rdf+xml"]]
+
+  const [out, inc] = await Promise.all([
+    sparql(`SELECT ?p ?o (SAMPLE(?l) AS ?ol) WHERE { <${uri}> ?p ?o ${labelOf("?o", "l")} } GROUP BY ?p ?o ORDER BY ?p`),
+    sparql(`SELECT ?s ?p ${CARD_VARS} WHERE { ?s ?p <${uri}> ${CARD_WHERE} } GROUP BY ?s ?p ORDER BY DESC(BOUND(?thumb)) LCASE(STR(?label)) LIMIT 500`),
+  ]);
+  if (!out.length && !inc.length) throw new Error("nie ma takiego zasobu");
+  const by = Object.groupBy(out, r => curie(r.p));
+  const text = p => pickLang(by[p] || []).map(r => r.o);
+
+  // nagłówek rekordu
+  const kind = (by["rdf:type"] || []).map(r => typeLabel(r.o)).join(", ");
+  const title = text("schema:name")[0] || text("schema:identifier")[0] || curie(uri);
+  $("kind").textContent = kind;
+  $("crumb").textContent = kind || "Rekord";
+  $("title").textContent = title;
+  document.title = `${title} – Instytut Biblioteka Polska w Paryżu`;
+  $("byline").innerHTML = [
+    (by["schema:creator"] || []).map(r => link(r.o, r.ol)).join(", "),
+    esc(text("schema:dateCreated")[0] || ""),
+  ].filter(Boolean).join(" · ");
+  $("lead").textContent = text("schema:description")[0] || "";
+
+  // opis: pola w ustalonej kolejności, potem wszystko, czego nie przewidziano
+  const value = (p, r) =>
+    p === "owl:sameAs" ? `<a class="pill" href="${esc(r.o)}" target="_blank" rel="noopener">${esc(sourceName(r.o))} ↗</a>`
+    : p === "schema:keywords" ? `<span class="pill">${esc(r.o)}</span>`
+    : /^https?:/.test(r.o) ? link(r.o, r.ol)
+    : esc(r.o);
+  const order = [...Object.keys(FIELDS), ...Object.keys(by).filter(p => !(p in FIELDS))];
+  $("facts").innerHTML = order.filter(p => by[p] && !HIDDEN.has(p)).map(p => {
+    const sep = p === "owl:sameAs" || p === "schema:keywords" ? " " : ", ";
+    return `<dt>${esc(FIELDS[p] || curie(p))}</dt><dd>${pickLang(by[p]).map(r => value(p, r)).join(sep)}</dd>`;
+  }).join("");
+
+  // co wskazuje na ten rekord (dzieła autora, obiekty w kolekcji…) jako karty
+  $("inverse").innerHTML = Object.entries(Object.groupBy(inc, r => curie(r.p))).map(([p, rows]) => `
+    <section class="section">
+      <h2>${esc(INVERSE[p] || "Powiązane")} <span class="muted">${rows.length}</span></h2>
+      <ul class="grid">${rows.map(card).join("")}</ul>
+    </section>`).join("");
+
+  // dane otwarte
+  $("uri").textContent = uri;
+  $("formats").innerHTML = [["ttl", "text/turtle"], ["jsonld", "application/ld+json"], ["rdf", "application/rdf+xml"]]
     .map(([ext, mime]) => `<a href="#" data-ext="${ext}" data-mime="${mime}">${ext}</a>`).join(" · ");
-  formats.onclick = async e => {
+  $("formats").onclick = async e => {
     const a = e.target.closest("a");
     if (!a) return;
     e.preventDefault();
@@ -78,66 +145,54 @@ const uri = BASE + local;
     Object.assign(document.createElement("a"), { href: url, download: `${local.replaceAll("/", "_")}.${a.dataset.ext}` }).click();
     URL.revokeObjectURL(url);
   };
+  $("triples").innerHTML = out.map(r => `<tr><th>${link(r.p)}</th><td>${/^https?:/.test(r.o) ? link(r.o, r.ol) : esc(r.o)}${r.o_lang ? ` <span class="muted">@${esc(r.o_lang)}</span>` : ""}</td></tr>`).join("");
 
-  const [out, inc] = await Promise.all([
-    sparql(`SELECT ?p ?o (SAMPLE(?l) AS ?ol) WHERE { <${uri}> ?p ?o ${labelOf("?o", "l")} } GROUP BY ?p ?o ORDER BY ?p`),
-    sparql(`SELECT ?s ?p (SAMPLE(?l) AS ?sl) WHERE { ?s ?p <${uri}> ${labelOf("?s", "l")} } GROUP BY ?s ?p ORDER BY ?p LIMIT 500`),
-  ]);
-  if (!out.length && !inc.length) throw new Error("nie ma takiego zasobu");
-
-  const names = out.filter(r => /(name|label|prefLabel|title)$/.test(r.p));
-  const title = (names.find(r => r.o_lang === "pl") || names[0] || out.find(r => r.p.endsWith("identifier")))?.o || curie(uri);
-  document.getElementById("title").textContent = document.title = title;
-
-  // metadane: jedna linia na predykat, wartości po przecinku
-  const cell = r => (/^https?:/.test(r.o) ? link(r.o, r.ol) : esc(r.o) + (r.o_lang ? ` <sup class="muted">${esc(r.o_lang)}</sup>` : ""));
-  const rows = (list, p, v) => Object.entries(Object.groupBy(list, r => r[p]))
-    .map(([pr, rs]) => `<tr><th>${link(pr)}</th><td>${rs.map(v).join(", ")}</td></tr>`).join("");
-  document.getElementById("meta").innerHTML = rows(out, "p", cell);
-  document.getElementById("in").innerHTML = rows(inc, "p", r => link(r.s, r.sl));
-  document.getElementById("in-h").hidden = !inc.length;
-
-  // skany: viewer wybierany ?viewer=…, skrypt ładowany dopiero po wyborze
-  // ponytail: przełącznik tylko do porównania viewerów; po decyzji zostaje jeden, reszta do usunięcia
-  const manifest = out.find(r => r.p === IIIF)?.o;
+  // skan: viewer wybierany ?viewer=…, skrypt ładowany dopiero po wyborze
+  const manifest = by["schema:associatedMedia"]?.[0]?.o;
   if (manifest) {
-    const params = new URLSearchParams(location.search);
+    $("record").classList.remove("no-media");
+    $("stage").hidden = false;
     const key = VIEWERS[params.get("viewer")] ? params.get("viewer") : "mirador";
-    const tabs = document.getElementById("viewer-tabs");
-    tabs.innerHTML = Object.entries(VIEWERS).map(([k, v]) => {
-      params.set("viewer", k);
-      return `<a href="?${esc(params)}"${k === key ? ' aria-current="true"' : ""}>${v.name}</a>`;
+    $("viewer-tabs").innerHTML = Object.entries(VIEWERS).map(([k, v]) => {
+      const p = new URLSearchParams(params);
+      p.set("viewer", k);
+      return `<a href="?${esc(p)}"${k === key ? ' aria-current="true"' : ""}>${v.name}</a>`;
     }).join("");
-    const el = document.getElementById("viewer");
-    tabs.hidden = el.hidden = false;
-    const v = VIEWERS[key];
+    const v = VIEWERS[key], el = $("viewer");
     if (v.css) document.head.append(Object.assign(document.createElement("link"), { rel: "stylesheet", href: v.css }));
-    // awaria viewera (np. CDN) nie może zabrać ze sobą metadanych i grafu
+    // awaria viewera (np. CDN) nie może zabrać ze sobą reszty strony
     new Promise((ok, fail) => document.head.append(Object.assign(document.createElement("script"), { src: v.js, onload: ok, onerror: fail })))
       .then(() => v.show(el, manifest))
-      .catch(() => (el.innerHTML = `<p class="muted">Nie udało się wczytać viewera ${v.name}. <a href="${esc(manifest)}">Manifest IIIF</a></p>`));
+      .catch(() => (el.innerHTML = `<p class="empty">Nie udało się wczytać viewera ${v.name}. <a href="${esc(manifest)}">Manifest IIIF</a></p>`));
   }
 
-  // graf sąsiedztwa: węzły = IRI (literały są w tabeli), IIIF pomijamy
+  // graf sąsiedztwa: węzły = IRI (literały są w opisie)
+  const css = getComputedStyle(document.documentElement);
+  const color = n => css.getPropertyValue(n).trim();
   const nodes = new Map([[uri, title]]), edges = [];
-  for (const r of out) if (/^https?:/.test(r.o) && r.p !== IIIF) { nodes.set(r.o, r.ol || curie(r.o)); edges.push([uri, r.o, r.p]); }
-  for (const r of inc) { nodes.set(r.s, r.sl || curie(r.s)); edges.push([r.s, uri, r.p]); }
-  const cy = cytoscape({
-    container: document.getElementById("graph"),
-    elements: [
-      ...[...nodes].map(([id, label]) => ({ data: { id, label }, classes: id === uri ? "me" : id.startsWith(BASE) ? "" : "ext" })),
-      ...edges.map(([s, t, p], i) => ({ data: { id: "e" + i, source: s, target: t, label: curie(p) } })),
-    ],
-    layout: { name: "cose", animate: false },
-    style: [
-      { selector: "node", style: { label: "data(label)", "font-size": 10, "background-color": "#8a6d3b", "text-wrap": "ellipsis", "text-max-width": 120 } },
-      { selector: ".me", style: { "background-color": "#b22", width: 40, height: 40 } },
-      { selector: ".ext", style: { "background-color": "#999" } },
-      { selector: "edge", style: { label: "data(label)", "font-size": 8, "curve-style": "bezier", "target-arrow-shape": "triangle", width: 1, color: "#666" } },
-    ],
-  });
-  cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });
-})().catch(e => (document.getElementById("title").textContent = "Błąd: " + e.message));
+  for (const r of out) if (/^https?:/.test(r.o) && !HIDDEN.has(curie(r.p))) { nodes.set(r.o, r.ol || sourceName(r.o)); edges.push([uri, r.o, r.p]); }
+  for (const r of inc) { nodes.set(r.s, r.label); edges.push([r.s, uri, r.p]); }
+  if (edges.length) {
+    const cy = cytoscape({
+      container: $("graph"),
+      elements: [
+        ...[...nodes].map(([id, label]) => ({ data: { id, label }, classes: id === uri ? "me" : id.startsWith(BASE) ? "" : "ext" })),
+        ...edges.map(([s, t, p], i) => ({ data: { id: "e" + i, source: s, target: t, label: FIELDS[curie(p)] || curie(p) } })),
+      ],
+      // gwiazda: rekord w środku, sąsiedzi na okręgu
+      layout: { name: "concentric", concentric: n => (n.id() === uri ? 2 : 1), levelWidth: () => 1, minNodeSpacing: 130, padding: 40, animate: false },
+      userZoomingEnabled: false, // kółko myszy przewija stronę, nie graf
+      maxZoom: 1.3,
+      style: [
+        { selector: "node", style: { label: "data(label)", "font-family": "Inter, sans-serif", "font-size": 11, color: color("--ink"), "background-color": color("--muted"), width: 14, height: 14, "text-margin-y": -4, "text-wrap": "ellipsis", "text-max-width": 140 } },
+        { selector: ".me", style: { "background-color": color("--accent"), width: 26, height: 26, "font-size": 13, "font-weight": 600 } },
+        { selector: ".ext", style: { "background-color": color("--surface"), "border-width": 2, "border-color": color("--muted") } },
+        { selector: "edge", style: { label: "data(label)", "font-family": "Inter, sans-serif", "font-size": 9, color: color("--muted"), "curve-style": "bezier", "target-arrow-shape": "triangle", "arrow-scale": .8, width: 1, "line-color": color("--line"), "target-arrow-color": color("--line"), "text-background-color": color("--surface"), "text-background-opacity": 1, "text-background-padding": 2 } },
+      ],
+    });
+    cy.on("tap", "node", e => { const id = e.target.id(); if (id !== uri) id.startsWith(BASE) ? (location.href = href(id)) : window.open(id); });
+  } else $("graph-section").hidden = true;
+})().catch(e => ($("title").textContent = "Błąd: " + e.message));
 </script>
 </body>
 </html>
